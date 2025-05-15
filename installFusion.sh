@@ -154,7 +154,7 @@ select choix in "${options[@]}"; do
             break
             ;;
         2)
-            exec ./Fusion.sh
+            exec ./installFusion.sh
             break
             ;;
         *)
