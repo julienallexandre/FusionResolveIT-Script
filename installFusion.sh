@@ -7,33 +7,33 @@ fi
 echo "FusionResolveIT - Installation (Debian/Nginx/MariaDB)"
 
 function installationDesPrerequis {
-    sudo apt update
-    sudo apt install apt-transport-https
-    sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg 
-    sudo sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
-    sudo apt update
-    sudo apt install nginx -y
-    sudo apt install php$FUSION_PHP_VERSION-curl php$FUSION_PHP_VERSION-gd php$FUSION_PHP_VERSION-imap php$FUSION_PHP_VERSION-intl php$FUSION_PHP_VERSION-mbstring php$FUSION_PHP_VERSION-mysql php$FUSION_PHP_VERSION-xml php$FUSION_PHP_VERSION-zip php$FUSION_PHP_VERSION-fpm -y
-    sudo apt install mariadb-server -y
+    apt update
+    apt install apt-transport-https
+    wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg 
+    sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+    apt update
+    apt install nginx -y
+    apt install php$FUSION_PHP_VERSION-curl php$FUSION_PHP_VERSION-gd php$FUSION_PHP_VERSION-imap php$FUSION_PHP_VERSION-intl php$FUSION_PHP_VERSION-mbstring php$FUSION_PHP_VERSION-mysql php$FUSION_PHP_VERSION-xml php$FUSION_PHP_VERSION-zip php$FUSION_PHP_VERSION-fpm -y
+    apt install mariadb-server -y
     configurationBDD
 }
 
 function configurationBDD {
-    sudo mysql -e "CREATE DATABASE $FUSION_DB_NAME;"
-    sudo mysql -e "CREATE USER $FUSION_DB_USER@$FUSION_DB_HOST IDENTIFIED BY '$FUSION_DB_PASSWORD';"
-    sudo mysql -e "GRANT ALL PRIVILEGES ON $FUSION_DB_NAME.* TO $FUSION_DB_USER@$FUSION_DB_HOST;"
-    sudo mysql -e "FLUSH PRIVILEGES;"
+    mysql -e "CREATE DATABASE $FUSION_DB_NAME;"
+    mysql -e "CREATE USER $FUSION_DB_USER@$FUSION_DB_HOST IDENTIFIED BY '$FUSION_DB_PASSWORD';"
+    mysql -e "GRANT ALL PRIVILEGES ON $FUSION_DB_NAME.* TO $FUSION_DB_USER@$FUSION_DB_HOST;"
+    mysql -e "FLUSH PRIVILEGES;"
     telechargementFichiersFusion
 }
 
 function telechargementFichiersFusion {
-    sudo wget $FUSION_DOWNLOAD_URL
-    sudo tar -xzvf fusionresolveit-$FUSION_VERSION.tar.gz -C /var/www
+    wget $FUSION_DOWNLOAD_URL
+    tar -xzvf fusionresolveit-$FUSION_VERSION.tar.gz -C /var/www
     configurationNginx
 }
 
 function configurationNginx {
-    sudo tee /etc/nginx/sites-available/fusionresolveit > /dev/null << EOF
+    tee /etc/nginx/sites-available/fusionresolveit > /dev/null << EOF
 server {
     listen 80;
 
@@ -59,14 +59,14 @@ server {
     }
 }
 EOF
-    sudo ln -s /etc/nginx/sites-available/fusionresolveit /etc/nginx/sites-enabled/
-    sudo rm /etc/nginx/sites-enabled/default
-    sudo systemctl restart nginx.service
+    ln -s /etc/nginx/sites-available/fusionresolveit /etc/nginx/sites-enabled/
+    rm /etc/nginx/sites-enabled/default
+    systemctl restart nginx.service
     configurationPhinx
 }
 
 function configurationPhinx {
-    sudo bash -c 'cat > /var/www/fusionresolveit/phinx.php << EOF
+    bash -c 'cat > /var/www/fusionresolveit/phinx.php << EOF
 <?php
 return [
     "paths" => [
@@ -90,21 +90,21 @@ return [
     "version_order" => "creation"
 ];
 EOF'
-    sudo ln -s /etc/nginx/sites-available/fusionresolveit /etc/nginx/sites-enabled/
-    sudo rm /etc/nginx/sites-enabled/default
-    sudo systemctl restart nginx.service
+    ln -s /etc/nginx/sites-available/fusionresolveit /etc/nginx/sites-enabled/
+    rm /etc/nginx/sites-enabled/default
+    systemctl restart nginx.service
     permissionsFichiers
 }
 
 function permissionsFichiers {
-    sudo chown -R www-data:www-data /var/www/fusionresolveit
-    sudo chmod -R 755 /var/www/fusionresolveit
+    chown -R www-data:www-data /var/www/fusionresolveit
+    chmod -R 755 /var/www/fusionresolveit
     startMigration
 }
 
 function startMigration {
     cd /var/www/fusionresolveit
-    sudo ./bin/cli migrate
+    ./bin/cli migrate
 }
 
 PS3="Quelle version de PHP souhaitez-vous utiliser ?"
